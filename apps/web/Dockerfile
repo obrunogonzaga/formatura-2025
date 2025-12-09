@@ -3,6 +3,8 @@ ENV PRISMA_CLI_BINARY_TARGETS=linux-arm64-openssl-3.0.x
 WORKDIR /app
 
 FROM base AS deps
+# Ensure NODE_ENV doesn't skip devDependencies during install
+ENV NODE_ENV=development
 COPY package.json package-lock.json ./
 COPY apps/web/package.json apps/web/
 COPY packages/config/package.json packages/config/
@@ -11,6 +13,8 @@ RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists
 RUN npm ci
 
 FROM base AS builder
+# Keep development mode for build to ensure all tools are available
+ENV NODE_ENV=development
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run prisma:generate --workspace apps/web
