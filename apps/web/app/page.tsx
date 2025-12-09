@@ -20,6 +20,7 @@ function createEmptyChild(): ChildForm {
 
 export default function HomePage() {
   const [guardianName, setGuardianName] = useState("");
+  const [turma, setTurma] = useState<"JII A" | "JII B" | "">("");
   const [children, setChildren] = useState<ChildForm[]>([createEmptyChild()]);
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -54,6 +55,7 @@ export default function HomePage() {
 
   function validate(): string | null {
     if (!guardianName.trim()) return "Informe o nome do responsável.";
+    if (!turma) return "Selecione a turma.";
     if (children.some((c) => !c.name.trim()))
       return "Cada criança precisa ter um nome.";
     const invalidType = children.some((c) =>
@@ -87,6 +89,7 @@ export default function HomePage() {
     try {
       const payload = {
         guardianName: guardianName.trim(),
+        turma: turma.trim(),
         children: children.map((child, childIndex) => ({
           name: child.name.trim(),
           childIndex,
@@ -139,6 +142,7 @@ export default function HomePage() {
       setStatus("success");
       setMessage("Envio concluído! Obrigado por participar.");
       setGuardianName("");
+      setTurma("");
       setChildren([createEmptyChild()]);
     } catch (error) {
       console.error(error);
@@ -190,6 +194,23 @@ export default function HomePage() {
               onChange={(e) => setGuardianName(e.target.value)}
               placeholder="Digite o nome completo do responsável"
             />
+          </div>
+
+          <div className="input-group">
+            <label className="input-label" htmlFor="turma">
+              Turma
+            </label>
+            <select
+              id="turma"
+              className="input"
+              required
+              value={turma}
+              onChange={(e) => setTurma(e.target.value as "JII A" | "JII B")}
+            >
+              <option value="">Selecione a turma</option>
+              <option value="JII A">JII A</option>
+              <option value="JII B">JII B</option>
+            </select>
           </div>
 
           <div className="children-section">

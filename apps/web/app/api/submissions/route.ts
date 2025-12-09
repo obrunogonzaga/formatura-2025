@@ -13,15 +13,18 @@ type UploadMeta = {
 };
 
 function buildObjectKey(params: {
-  submissionId: string;
-  childId: string;
+  turma: string;
+  guardianName: string;
   childName: string;
   photoIndex: number;
   fileName: string;
 }) {
   const safeName = slugifyFileName(params.fileName);
+  const turmaSlug = toSnakeCase(params.turma);
+  const guardianSlug = toSnakeCase(params.guardianName);
   const childSlug = toSnakeCase(params.childName);
-  return `${params.submissionId}/${childSlug}_${params.childId}/${params.photoIndex + 1}-${safeName}`;
+  
+  return `${turmaSlug}/${guardianSlug}/${childSlug}/${params.photoIndex + 1}-${safeName}`;
 }
 
 export async function POST(request: Request) {
@@ -32,7 +35,8 @@ export async function POST(request: Request) {
     const { submissionId } = await prisma.$transaction(async (tx) => {
       const submission = await tx.submission.create({
         data: {
-          guardianName: payload.guardianName.trim()
+          guardianName: payload.guardianName.trim(),
+          turma: payload.turma.trim()
         }
       });
 
@@ -46,8 +50,8 @@ export async function POST(request: Request) {
 
         for (const [photoIndex, photo] of child.photos.entries()) {
           const objectKey = buildObjectKey({
-            submissionId: submission.id,
-            childId: createdChild.id,
+            turma: submission.turma,
+            guardianName: submission.guardianName,
             childName: createdChild.name,
             photoIndex,
             fileName: photo.fileName

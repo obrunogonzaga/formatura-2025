@@ -15,6 +15,9 @@ export const childInputSchema = z.object({
 
 export const submissionInputSchema = z.object({
   guardianName: z.string().min(2, "Informe o nome do responsável"),
+  turma: z.enum(["JII A", "JII B"], {
+    required_error: "Selecione a turma"
+  }),
   children: z.array(childInputSchema).min(1, "Inclua ao menos uma criança")
 });
 

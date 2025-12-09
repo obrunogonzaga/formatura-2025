@@ -10,6 +10,7 @@ datasource db {
 model Submission {
   id           String   @id @default(cuid())
   guardianName String
+  turma        String
   createdAt    DateTime @default(now())
   children     Child[]
 }
