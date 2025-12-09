@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Logo from "./components/Logo";
+import ThemeToggle from "./components/ThemeToggle";
 
 type ChildForm = {
   id: string;
@@ -150,10 +152,13 @@ export default function HomePage() {
   }
 
   return (
-    <main className="page">
-      <div className="card">
-        <h1 className="title">Formulário de fotos - formatura 2025</h1>
-        <p className="muted">
+    <>
+      <ThemeToggle />
+      <main className="page">
+        <div className="card">
+        <Logo />
+        <h1 className="title">Formulário de Fotos - Formatura 2025</h1>
+        <p className="subtitle">
           Precisamos de 3 fotos por criança para produzir o vídeo da
           formatura. Informe o nome do responsável, cadastre cada filho e
           anexe as fotos solicitadas.
@@ -161,132 +166,157 @@ export default function HomePage() {
 
         <div className="instructions">
           <strong>Como funciona:</strong>
-          <ul className="muted">
-            <li>1) Preencha o nome do responsável.</li>
-            <li>2) Adicione cada criança e informe o nome dela.</li>
+          <ul>
+            <li>Preencha o nome do responsável</li>
+            <li>Adicione cada criança e informe o nome dela</li>
             <li>
-              3) Faça upload de <strong>3 fotos</strong> por criança (JPEG,
-              PNG ou WEBP, máx. {maxSizeMb} MB cada).
+              Faça upload de <strong>exatamente 3 fotos</strong> por criança (JPEG,
+              PNG ou WEBP, máx. {maxSizeMb} MB cada)
             </li>
-            <li>
-              4) Envie o formulário e aguarde a confirmação de sucesso.
-            </li>
+            <li>Envie o formulário e aguarde a confirmação de sucesso</li>
           </ul>
         </div>
 
-        <form className="row" onSubmit={handleSubmit}>
-          <label className="row">
-            <span className="section-title">Nome do responsável</span>
+        <form className="form-section" onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label className="input-label" htmlFor="guardian-name">
+              Nome do Responsável
+            </label>
             <input
+              id="guardian-name"
               className="input"
               required
               value={guardianName}
               onChange={(e) => setGuardianName(e.target.value)}
-              placeholder="Digite o nome completo"
+              placeholder="Digite o nome completo do responsável"
             />
-          </label>
-
-          <div className="child-header">
-            <h3 className="section-title">Filhos</h3>
-            <button
-              type="button"
-              className="button button-secondary"
-              onClick={addChild}
-            >
-              + Adicionar filho
-            </button>
           </div>
 
-          <div className="row">
-            {children.map((child, index) => (
-              <div key={child.id} className="child-block">
-                <div className="child-header">
-                  <div className="tag">Criança #{index + 1}</div>
-                  {children.length > 1 && (
-                    <button
-                      type="button"
-                      className="button button-secondary"
-                      onClick={() => removeChild(child.id)}
-                    >
-                      Remover
-                    </button>
-                  )}
-                </div>
+          <div className="children-section">
+            <div className="section-header">
+              <h2 className="section-title">Crianças</h2>
+              <button
+                type="button"
+                className="button button-add"
+                onClick={addChild}
+              >
+                + Adicionar Criança
+              </button>
+            </div>
 
-                <div className="row" style={{ marginTop: 12 }}>
-                  <label className="row">
-                    <span className="muted">Nome completo</span>
-                    <input
-                      className="input"
-                      required
-                      value={child.name}
-                      onChange={(e) => updateChildName(child.id, e.target.value)}
-                      placeholder="Nome da criança"
-                    />
-                  </label>
-
-                  <label className="row">
-                    <span className="muted">
-                      Fotos (3 arquivos - JPEG/PNG/WEBP)
-                    </span>
-                    <input
-                      className="input"
-                      type="file"
-                      multiple
-                      accept={allowedMime.join(",")}
-                      onChange={(e) => updateChildFiles(child.id, e.target.files)}
-                    />
-                  </label>
-
-                  <div className="file-list muted">
-                    {child.files.length === 0 ? (
-                      <span className="small">Nenhum arquivo selecionado.</span>
-                    ) : (
-                      child.files.map((file, fileIndex) => (
-                        <div key={fileIndex}>
-                          {fileIndex + 1}. {file.name} —{" "}
-                          {(file.size / (1024 * 1024)).toFixed(2)} MB
-                        </div>
-                      ))
+            <div className="children-grid">
+              {children.map((child, index) => (
+                <div key={child.id} className="child-block">
+                  <div className="child-header">
+                    <div className="tag">Criança #{index + 1}</div>
+                    {children.length > 1 && (
+                      <button
+                        type="button"
+                        className="button button-danger"
+                        onClick={() => removeChild(child.id)}
+                      >
+                        Remover
+                      </button>
                     )}
                   </div>
+
+                  <div className="child-form">
+                    <div className="input-group">
+                      <label className="input-label" htmlFor={`child-name-${child.id}`}>
+                        Nome Completo da Criança
+                      </label>
+                      <input
+                        id={`child-name-${child.id}`}
+                        className="input"
+                        required
+                        value={child.name}
+                        onChange={(e) => updateChildName(child.id, e.target.value)}
+                        placeholder="Digite o nome completo"
+                      />
+                    </div>
+
+                    <div className="input-group">
+                      <label className="input-label" htmlFor={`child-photos-${child.id}`}>
+                        Fotos (3 arquivos)
+                      </label>
+                      <div className="file-input-wrapper">
+                        <label 
+                          htmlFor={`child-photos-${child.id}`}
+                          className={`file-input-custom ${child.files.length > 0 ? 'has-files' : ''}`}
+                        >
+                          <span>
+                            {child.files.length === 0
+                              ? '📸 Clique para selecionar 3 fotos'
+                              : `${child.files.length} foto(s) selecionada(s)`}
+                          </span>
+                        </label>
+                        <input
+                          id={`child-photos-${child.id}`}
+                          type="file"
+                          multiple
+                          accept={allowedMime.join(",")}
+                          onChange={(e) => updateChildFiles(child.id, e.target.files)}
+                        />
+                      </div>
+
+                      {child.files.length > 0 && (
+                        <div className="file-list">
+                          {child.files.map((file, fileIndex) => (
+                            <div key={fileIndex} className="file-item">
+                              <span>
+                                {file.name} — {(file.size / (1024 * 1024)).toFixed(2)} MB
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid-2">
-            <div className="muted small">
-              Total de crianças: {children.length} | Fotos carregadas:{" "}
-              {totalPhotos} / {children.length * 3}
+              ))}
             </div>
-            {message && (
-              <div
-                className={`status ${
-                  status === "success"
-                    ? "status-success"
-                    : status === "error"
-                    ? "status-error"
-                    : "status-warning"
-                }`}
-              >
-                {message}
-              </div>
-            )}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          {message && (
+            <div
+              className={`status ${
+                status === "success"
+                  ? "status-success"
+                  : status === "error"
+                  ? "status-error"
+                  : "status-warning"
+              }`}
+            >
+              {message}
+            </div>
+          )}
+
+          <div className="form-footer">
+            <div className="summary">
+              <div className="summary-item">
+                <span className="summary-label">Crianças</span>
+                <span className="summary-value">{children.length}</span>
+              </div>
+              <div className="summary-item">
+                <span className="summary-label">Fotos</span>
+                <span className="summary-value">
+                  {totalPhotos} / {children.length * 3}
+                </span>
+              </div>
+            </div>
+
             <button
               className="button button-primary"
               type="submit"
               disabled={status === "loading"}
             >
-              {status === "loading" ? "Enviando..." : "Enviar formulário"}
+              {status === "loading" ? "⏳ Enviando..." : "🚀 Enviar Formulário"}
             </button>
           </div>
         </form>
       </div>
     </main>
+    </>
   );
 }
 
