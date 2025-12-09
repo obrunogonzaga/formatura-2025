@@ -1,5 +1,4 @@
 FROM node:20-slim AS base
-ENV PRISMA_CLI_BINARY_TARGETS=linux-arm64-openssl-3.0.x
 WORKDIR /app
 
 FROM base AS deps
@@ -21,11 +20,16 @@ RUN npm run build --workspace apps/web
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && apt-get install -y openssl procps && rm -rf /var/lib/apt/lists/*
+# Copy node_modules including Prisma binaries
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /app/prisma ./prisma
+# Copy package files needed for Prisma CLI
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
+COPY --from=builder /app/packages/config/package.json ./packages/config/package.json
 EXPOSE 3000
 CMD ["node", "apps/web/server.js"]
 
