@@ -30,6 +30,10 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
 COPY --from=builder /app/packages/config/package.json ./packages/config/package.json
+# Copy entrypoint script
+COPY apps/web/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 3000
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "apps/web/server.js"]
 
