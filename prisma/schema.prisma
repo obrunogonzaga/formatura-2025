@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Submission {
+  id           String   @id @default(cuid())
+  guardianName String
+  createdAt    DateTime @default(now())
+  children     Child[]
+}
+
+model Child {
+  id           String   @id @default(cuid())
+  name         String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId String
+  photos       Photo[]
+
+  @@index([submissionId])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  fileName  String
+  mimeType  String
+  objectKey String
+  order     Int
+  createdAt DateTime @default(now())
+  child     Child   @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId   String
+
+  @@index([childId])
+}
+

@@ -1,0 +1,12 @@
+{
+  "name": "@formatura/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}
+
